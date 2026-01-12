@@ -1,0 +1,15 @@
+{
+  "material-icon-theme.activeIconPack": "nest",
+  "material-icon-theme.files.associations": {
+    "*.controller.ts": "nest-controller",
+    "*.module.ts": "nest-module",
+    "*.service.ts": "nest-service",
+    "*.guard.ts": "nest-guard",
+    "*.pipe.ts": "nest-pipe",
+    "*.filter.ts": "nest-filter",
+    "*.interceptor.ts": "nest-interceptor",
+    "*.decorator.ts": "nest-decorator",
+    "*.gateway.ts": "nest-gateway",
+    "*.resolver.ts": "nest-resolver"
+  }
+}
