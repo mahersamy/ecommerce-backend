@@ -3,7 +3,7 @@ import argon2 from "argon2";
 
 
 @Injectable()
-export class HashUtil {
+export class HashService {
   async hash(text: string,timeCost:number=Number(process.env.SALT_ROUND)): Promise<string> {
     return await argon2.hash(text, {
       type: argon2.argon2id, 

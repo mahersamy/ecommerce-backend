@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
 import { UserRepository } from 'src/DB/Repository/user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from 'src/DB/Models/users.model';
@@ -8,14 +6,16 @@ import { HashService } from 'src/common';
 import { EncryptionService } from 'src/common';
 import { TokenService } from 'src/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from './user.service';
+import { UserController } from './user.controller';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
   ],
-  controllers: [AuthController],
+  controllers: [UserController],
   providers: [
-    AuthService,
+    UserService,
     UserRepository,
     HashService,
     EncryptionService,
@@ -23,6 +23,6 @@ import { JwtService } from '@nestjs/jwt';
     JwtService,
   ],
 })
-export class AuthModule {
+export class UserModule {
   
 }

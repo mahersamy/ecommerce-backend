@@ -3,10 +3,10 @@ import crypto from "node:crypto";
 
 
 @Injectable()
-export class EncryptionUtil {
+export class EncryptionService {
   private key = Buffer.from(process.env.ENCRYPTION_KEY!, "utf8");
 
-  encrypt(text: string) {
+  async encrypt(text: string) {
     if (this.key.length !== 32) {
       throw new Error(
         `Encryption key must be 32 bytes, got ${this.key.length}`

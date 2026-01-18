@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { LoginBodyDto, RegisterBodyDto } from './auth.dto';
 import { UserRepository } from 'src/DB/Repository/user.repository';
-import { HashUtil } from 'src/Utils/security/hash.security';
-import { EncryptionUtil } from 'src/Utils/security/encryption.security';
-import { TokenUtil } from 'src/Utils/security/token.security';
+import { TokenService } from 'src/common';
+import { HashService } from 'src/common';
+import { EncryptionService } from 'src/common';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly _userRepo: UserRepository,
-    private readonly _hashUtil: HashUtil,
-    private readonly _encryptionUtil: EncryptionUtil,
-    private readonly _tokenUtil: TokenUtil,
+    private readonly _hashService: HashService,
+    private readonly _tokenService: TokenService,
+    private readonly _encryptionService: EncryptionService,
   ) {}
 
   async register(user: RegisterBodyDto) {
@@ -24,8 +24,8 @@ export class AuthService {
     if (existingUser) {
       throw new ConflictException('User already exists');
     }
-    const hashedPassword = await this._hashUtil.hash(user.password);
-    const encryptedPhoneNumber = await this._encryptionUtil.encrypt(
+    const hashedPassword = await this._hashService.hash(user.password);
+    const encryptedPhoneNumber = await this._encryptionService.encrypt(
       user.phoneNumber,
     );
     const newUser = await this._userRepo.createOne({
@@ -34,7 +34,6 @@ export class AuthService {
       phoneNumber: encryptedPhoneNumber,
     });
     return {
-      message: 'User registered successfully',
       data: newUser,
     };
   }
@@ -44,21 +43,26 @@ export class AuthService {
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
-    const isPasswordMatch = await this._hashUtil.verify(
+    const isPasswordMatch = await this._hashService.verify(
       existingUser.password,
       user.password,
     );
     if (!isPasswordMatch) {
       throw new UnauthorizedException('Invalid password');
     }
-    const token = await this._tokenUtil.generateToken(
-      { id: existingUser._id },
+    const accessToken = await this._tokenService.generateToken(
+      { _id: existingUser._id },
       { expiresIn: '1h', secret: process.env.JWT_SECRET_BEARER_ACCESS },
     );
-    console.log(token);
+    const refreshToken = await this._tokenService.generateToken(
+      { _id: existingUser._id },
+      { expiresIn: '1y', secret: process.env.JWT_SECRET_BEARER_REFRESH },
+    );
     return {
-      message: 'User logged in successfully',
-      token,
+      credential: {
+        accessToken,
+        refreshToken,
+      },
     };
   }
 }
