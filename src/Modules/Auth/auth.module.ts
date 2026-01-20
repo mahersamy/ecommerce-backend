@@ -10,9 +10,7 @@ import { TokenService } from 'src/common';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -23,6 +21,4 @@ import { JwtService } from '@nestjs/jwt';
     JwtService,
   ],
 })
-export class AuthModule {
-  
-}
+export class AuthModule {}

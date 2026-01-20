@@ -10,9 +10,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
   controllers: [UserController],
   providers: [
     UserService,
@@ -23,6 +21,4 @@ import { UserController } from './user.controller';
     JwtService,
   ],
 })
-export class UserModule {
-  
-}
+export class UserModule {}

@@ -25,9 +25,9 @@ export class AuthorizationGuard implements CanActivate {
         break;
     }
     if (accessRoles.length > 0) {
-      if (role || accessRoles.includes(role)) return false;
+      console.log(accessRoles.includes(role));
+      if (!role || !accessRoles.includes(role)) return false;
     }
-
     return true;
   }
 }

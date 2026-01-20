@@ -1,6 +1,6 @@
-import { SetMetadata } from "@nestjs/common";
-import { tokenTypeEnum } from "../Enums/tokeType.enum";
+import { SetMetadata } from '@nestjs/common';
+import { tokenTypeEnum } from '../Enums/tokeType.enum';
 
-
-const TokenKey='tokenType';
-export const Token = (tokenType:tokenTypeEnum) => SetMetadata(TokenKey, tokenType);
+const TokenKey = 'tokenType';
+export const Token = (tokenType: tokenTypeEnum) =>
+  SetMetadata(TokenKey, tokenType);

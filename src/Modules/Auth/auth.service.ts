@@ -28,7 +28,7 @@ export class AuthService {
     const encryptedPhoneNumber = await this._encryptionService.encrypt(
       user.phoneNumber,
     );
-    const newUser = await this._userRepo.createOne({
+    const newUser = await this._userRepo.create({
       ...user,
       password: hashedPassword,
       phoneNumber: encryptedPhoneNumber,

@@ -38,7 +38,7 @@ export class TokenService {
   }) {
     const [signature, token] = authorization.split(' ');
     if (!signature || !token) {
-      throw new UnauthorizedException("missing authorization");
+      throw new UnauthorizedException('missing authorization');
     }
     const signatures = await this.getSignatureLevel(
       signature as SignatureLevelEnum,

@@ -62,14 +62,12 @@ export class RegisterBodyDto {
   @IsOptional()
   profilePicture: string;
 
- @IsEnum(Gender)
- gender: Gender;
+  @IsEnum(Gender)
+  gender: Gender;
 
- @Min(14, { message: 'age must be at least 14' })
- age: number;
+  @Min(14, { message: 'age must be at least 14' })
+  age: number;
 }
-
-
 
 export class LoginBodyDto {
   @IsEmail()
@@ -80,4 +78,3 @@ export class LoginBodyDto {
   @IsNotEmpty()
   password: string;
 }
-

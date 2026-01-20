@@ -1,4 +1,4 @@
 export enum SignatureLevelEnum {
-  Bearer = "Bearer",
-  System = "System",
+  Bearer = 'Bearer',
+  System = 'System',
 }

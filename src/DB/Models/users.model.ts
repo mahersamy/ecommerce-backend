@@ -3,11 +3,9 @@ import { HydratedDocument } from 'mongoose';
 import { Gender } from 'src/common/Enums/gender.enum';
 import { Role } from 'src/common/Enums/role.enum';
 
-
 export type UserDocument = HydratedDocument<User>;
 
-
-@Schema({ timestamps: true ,virtuals: true ,toJSON: { virtuals: true }})
+@Schema({ timestamps: true, virtuals: true, toJSON: { virtuals: true } })
 export class User {
   @Prop({ required: true, trim: true, lowercase: true })
   firstName: string;
@@ -30,24 +28,21 @@ export class User {
   @Prop({ type: String, required: true })
   phoneNumber: string;
 
-  @Prop({ type: String, })
+  @Prop({ type: String })
   address: string;
 
-  @Prop({ type: String, })
+  @Prop({ type: String })
   profilePicture: string;
 
   @Prop({ type: String, required: true, enum: Gender })
   gender: Gender;
 
-  @Virtual(
-    {
-        get: function () {
-            return `${this.firstName} ${this.lastName}`;
-        }
-    }
-  )
+  @Virtual({
+    get: function () {
+      return `${this.firstName} ${this.lastName}`;
+    },
+  })
   fullName: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
