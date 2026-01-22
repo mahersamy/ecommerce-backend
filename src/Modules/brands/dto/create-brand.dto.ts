@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
@@ -15,8 +16,9 @@ export class CreateBrandDto {
   @MaxLength(50)
   name: string;
 
-  @IsString()
-  @IsMongoId()
+
+  @IsArray()
+  @IsMongoId({ each: true })
   @IsOptional()
-  categoryId: Types.ObjectId;
+  categoryIds?: Types.ObjectId[];
 }

@@ -1,7 +1,7 @@
 import { Model, ProjectionType, QueryFilter, QueryOptions } from 'mongoose';
 
 export abstract class BaseRepository<T> {
-  constructor(private readonly model: Model<T>) {}
+  constructor(protected readonly model: Model<T>) {}
 
   // Creation Methods
   async create(data: Partial<T>): Promise<T> {

@@ -3,7 +3,7 @@ import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { BrandRepository } from 'src/DB/Repository/brand.repository';
 import { CategoryRepository } from 'src/DB/Repository/category.repository';
-import { UserDocument } from 'src/DB/Models/users.model';
+import type { UserDocument } from 'src/DB/Models/users.model';
 import {
   CloudinaryResponse,
   CloudinaryService,
@@ -20,7 +20,7 @@ export class BrandsService {
 
   async createBrand(
     createBrandDto: CreateBrandDto,
-    user: Partial<UserDocument>,
+    user: UserDocument,
     brandLogo: Express.Multer.File,
   ) {
     const brand = await this.brandRepository.findOne({
@@ -29,6 +29,19 @@ export class BrandsService {
     if (brand) {
       throw new BadRequestException('Brand already exists');
     }
+
+    // Validate all category IDs if provided
+    if (createBrandDto.categoryIds && createBrandDto.categoryIds.length > 0) {
+      for (const categoryId of createBrandDto.categoryIds) {
+        const category = await this.categoryRepository.findById(
+          categoryId.toString(),
+        );
+        if (!category) {
+          throw new BadRequestException(`Invalid category ID: ${categoryId}`);
+        }
+      }
+    }
+
     let brandLogoUrl: CloudinaryResponse | undefined = undefined;
     if (brandLogo) {
       brandLogoUrl = await this.cloudinaryService.uploadFile(brandLogo, {
@@ -38,18 +51,10 @@ export class BrandsService {
       });
     }
 
-    if (createBrandDto.categoryId) {
-      const category = await this.categoryRepository.findById(
-        createBrandDto.categoryId.toString(),
-      );
-      if (!category) {
-        throw new BadRequestException('Please set valid category id');
-      }
-    }
     const newBrand = await this.brandRepository.create({
       ...createBrandDto,
-      logo: brandLogoUrl!.secure_url,
-      logoPublicId: brandLogoUrl!.public_id,
+      logo: brandLogoUrl?.secure_url,
+      logoPublicId: brandLogoUrl?.public_id,
       createdBy: user._id as Types.ObjectId,
     });
 
@@ -103,10 +108,15 @@ export class BrandsService {
       brand.logoPublicId = brandLogoUrl.public_id;
     }
 
-    if(updateBrandDto.categoryId){
-      const category = await this.categoryRepository.findById(updateBrandDto.categoryId.toString());
-      if (!category) {
-        throw new BadRequestException('Please set valid category id');
+    // Validate all category IDs if provided
+    if (updateBrandDto.categoryIds && updateBrandDto.categoryIds.length > 0) {
+      for (const categoryId of updateBrandDto.categoryIds) {
+        const category = await this.categoryRepository.findById(
+          categoryId.toString(),
+        );
+        if (!category) {
+          throw new BadRequestException(`Invalid category ID: ${categoryId}`);
+        }
       }
     }
 

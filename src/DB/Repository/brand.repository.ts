@@ -11,6 +11,6 @@ export class BrandRepository extends BaseRepository<BrandDocument> {
   }
 
   findByCategoryId(categoryId: string) {
-    return this.brandModel.find({ categoryId });
+    return this.brandModel.find({ categoryIds: { $in: [categoryId] } });
   }
 }

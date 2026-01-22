@@ -1,8 +1,4 @@
-import {
-  Prop,
-  Schema,
-  SchemaFactory,
-} from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types, UpdateQuery } from 'mongoose';
 import { Category } from './category.model';
 
@@ -29,8 +25,8 @@ export class Brand {
   @Prop({ type: String, index: true, trim: true, lowercase: true })
   slug: string;
 
-  @Prop({ type: Types.ObjectId, ref: Category.name })
-  categoryId: Types.ObjectId;
+  @Prop({ type: [Types.ObjectId], ref: Category.name, default: [] })
+  categoryIds: Types.ObjectId[];
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
   createdBy: Types.ObjectId;

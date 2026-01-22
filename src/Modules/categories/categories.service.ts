@@ -38,8 +38,8 @@ export class CategoriesService {
     }
     const newCategory = await this.categoryRepository.create({
       ...createCategoryDto,
-      logo: categoryLogoUrl!.secure_url,
-      logoPublicId: categoryLogoUrl!.public_id,
+      logo: categoryLogoUrl?.secure_url,
+      logoPublicId: categoryLogoUrl?.public_id,
       createdBy: user._id,
     });
 
@@ -47,8 +47,7 @@ export class CategoriesService {
   }
 
   async findAll() {
-    const categories = await this.categoryRepository.find();
-    return categories;
+    return this.categoryRepository.findAllWithBrands();
   }
 
   async findOne(id: string) {
@@ -93,10 +92,11 @@ export class CategoriesService {
       category.logo = categoryLogoUrl.secure_url;
       category.logoPublicId = categoryLogoUrl.public_id;
     }
-    const updatedCategory = await this.categoryRepository.update(
-      id,
-      updateCategoryDto,
-    );
+    const updatedCategory = await this.categoryRepository.update(id, {
+      ...updateCategoryDto,
+      logo: category.logo,
+      logoPublicId: category.logoPublicId,
+    });
     return updatedCategory;
   }
 
