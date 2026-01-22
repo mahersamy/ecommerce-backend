@@ -9,4 +9,8 @@ export class BrandRepository extends BaseRepository<BrandDocument> {
   ) {
     super(brandModel);
   }
+
+  findByCategoryId(categoryId: string) {
+    return this.brandModel.find({ categoryId });
+  }
 }

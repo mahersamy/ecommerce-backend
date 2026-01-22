@@ -32,4 +32,10 @@ export abstract class BaseRepository<T> {
   async update(id: string, data: Partial<T>): Promise<T | null> {
     return this.model.findByIdAndUpdate(id, data, { new: true });
   }
+
+  // delete
+
+  async delete(id: string): Promise<T | null> {
+    return this.model.findByIdAndDelete(id);
+  }
 }

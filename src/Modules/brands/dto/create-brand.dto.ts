@@ -1,10 +1,12 @@
 import {
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateBrandDto {
   @IsString()
@@ -12,4 +14,9 @@ export class CreateBrandDto {
   @IsNotEmpty()
   @MaxLength(50)
   name: string;
+
+  @IsString()
+  @IsMongoId()
+  @IsOptional()
+  categoryId: Types.ObjectId;
 }

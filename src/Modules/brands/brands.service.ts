@@ -2,13 +2,19 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { BrandRepository } from 'src/DB/Repository/brand.repository';
-import { User, UserDocument } from 'src/DB/Models/users.model';
-import { CloudinaryResponse, CloudinaryService } from 'src/common/services/cloudinary/cloudinary.service';
+import { CategoryRepository } from 'src/DB/Repository/category.repository';
+import { UserDocument } from 'src/DB/Models/users.model';
+import {
+  CloudinaryResponse,
+  CloudinaryService,
+} from 'src/common/services/cloudinary/cloudinary.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class BrandsService {
   constructor(
     private readonly brandRepository: BrandRepository,
+    private readonly categoryRepository: CategoryRepository,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -23,7 +29,7 @@ export class BrandsService {
     if (brand) {
       throw new BadRequestException('Brand already exists');
     }
-    let brandLogoUrl:CloudinaryResponse | undefined = undefined;
+    let brandLogoUrl: CloudinaryResponse | undefined = undefined;
     if (brandLogo) {
       brandLogoUrl = await this.cloudinaryService.uploadFile(brandLogo, {
         folder: 'brands',
@@ -31,11 +37,20 @@ export class BrandsService {
         toWebp: true,
       });
     }
+
+    if (createBrandDto.categoryId) {
+      const category = await this.categoryRepository.findById(
+        createBrandDto.categoryId.toString(),
+      );
+      if (!category) {
+        throw new BadRequestException('Please set valid category id');
+      }
+    }
     const newBrand = await this.brandRepository.create({
       ...createBrandDto,
       logo: brandLogoUrl!.secure_url,
       logoPublicId: brandLogoUrl!.public_id,
-      createdBy: user._id,
+      createdBy: user._id as Types.ObjectId,
     });
 
     return newBrand;
@@ -88,6 +103,13 @@ export class BrandsService {
       brand.logoPublicId = brandLogoUrl.public_id;
     }
 
+    if(updateBrandDto.categoryId){
+      const category = await this.categoryRepository.findById(updateBrandDto.categoryId.toString());
+      if (!category) {
+        throw new BadRequestException('Please set valid category id');
+      }
+    }
+
     const updatedBrand = await this.brandRepository.update(id, {
       ...updateBrandDto,
       logo: brand.logo,
@@ -97,7 +119,15 @@ export class BrandsService {
     return updatedBrand;
   }
 
-  removeBrand(id: string) {
-    return `This action removes a #${id} brand`;
+  async removeBrand(id: string) {
+    const brand = await this.brandRepository.findById(id);
+    if (!brand) {
+      throw new BadRequestException('Brand not found');
+    }
+    if (brand.logoPublicId) {
+      await this.cloudinaryService.deleteFile(brand.logoPublicId);
+    }
+    await this.brandRepository.delete(id);
+    return `removed brand ${brand.name} successfully`;
   }
 }

@@ -11,11 +11,11 @@ import { UnifinedResponseInterceptor } from './common';
 import {
   AuthModule,
   BrandsModule,
+  CategoriesModule,
   UserModule,
 } from './Modules/feature.modules';
 import { GlobalModule } from './Modules/global.module';
 import { join } from 'path';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { CloudinaryProvider } from './common/services/cloudinary/cloudinary.provider';
 
 @Module({
@@ -24,6 +24,7 @@ import { CloudinaryProvider } from './common/services/cloudinary/cloudinary.prov
     AuthModule,
     UserModule,
     BrandsModule,
+    CategoriesModule,
 
     // Database
     MongooseModule.forRoot(process.env.DATABASE_URI as string),

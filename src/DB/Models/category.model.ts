@@ -4,12 +4,11 @@ import {
   SchemaFactory,
 } from '@nestjs/mongoose';
 import { HydratedDocument, Types, UpdateQuery } from 'mongoose';
-import { Category } from './category.model';
 
-export type BrandDocument = HydratedDocument<Brand>;
+export type CategoryDocument = HydratedDocument<Category>;
 
 @Schema({ timestamps: true, virtuals: true, toJSON: { virtuals: true } })
-export class Brand {
+export class Category {
   @Prop({
     required: true,
     type: String,
@@ -29,22 +28,19 @@ export class Brand {
   @Prop({ type: String, index: true, trim: true, lowercase: true })
   slug: string;
 
-  @Prop({ type: Types.ObjectId, ref: Category.name })
-  categoryId: Types.ObjectId;
-
   @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
   createdBy: Types.ObjectId;
 }
 
-export const BrandSchema = SchemaFactory.createForClass(Brand);
+export const CategorySchema = SchemaFactory.createForClass(Category);
 
 // Hooks
-BrandSchema.pre('save', function (next) {
+CategorySchema.pre('save', function (next) {
   this.slug = this.name.toLowerCase().replace(/\s+/g, '-');
 });
 
-BrandSchema.pre('findOneAndUpdate', function () {
-  const update = this.getUpdate() as UpdateQuery<BrandDocument>;
+CategorySchema.pre('findOneAndUpdate', function () {
+  const update = this.getUpdate() as UpdateQuery<CategoryDocument>;
   if (update.name) {
     update.slug = update.name.toLowerCase().replace(/\s+/g, '-');
   }
