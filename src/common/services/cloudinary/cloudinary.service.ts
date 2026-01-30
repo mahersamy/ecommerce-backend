@@ -8,9 +8,10 @@ import {
 } from 'cloudinary';
 import * as streamifier from 'streamifier';
 
-import { compressImage, CompressImageOptions } from '../../utils/sharp.util';
+import { compressImage, CompressImageOptions } from '../../utils/files/sharp.util';
 
 export type CloudinaryResponse = UploadApiResponse | UploadApiErrorResponse;
+
 @Injectable()
 export class CloudinaryService {
   async uploadFile(
@@ -39,6 +40,18 @@ export class CloudinaryService {
 
       streamifier.createReadStream(buffer).pipe(uploadStream);
     });
+  }
+
+  
+  async uploadFiles(
+    files: Express.Multer.File[],
+    options?: CompressImageOptions,
+  ): Promise<CloudinaryResponse[]> {
+    if (!files || files.length === 0) {
+      throw new Error('No files provided for upload');
+    }
+
+    return Promise.all(files.map((file) => this.uploadFile(file, options)));
   }
 
   async deleteFile(public_id: string) {

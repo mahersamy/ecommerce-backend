@@ -1,7 +1,8 @@
 import { applyDecorators, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   UploadedFile,
+  UploadedFiles,
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
@@ -28,6 +29,37 @@ export function UploadedFileValidated(options: FileUploadOptions = {}) {
   } = options;
 
   return UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize }),
+        new FileTypeValidator({
+          fileType,
+          skipMagicNumbersValidation: true,
+        }),
+      ],
+      fileIsRequired,
+    }),
+  );
+}
+
+export function FilesUpload(
+  options: FileUploadOptions & { maxCount?: number } = {},
+) {
+  const { fieldName = 'images', maxCount = 10 } = options;
+
+  return applyDecorators(
+    UseInterceptors(FilesInterceptor(fieldName, maxCount)),
+  );
+}
+
+export function UploadedFilesValidated(options: FileUploadOptions = {}) {
+  const {
+    maxSize = 5 * 1024 * 1024, // 5MB default
+    fileType = 'image/(jpeg|png|jpg)',
+    fileIsRequired = false,
+  } = options;
+
+  return UploadedFiles(
     new ParseFilePipe({
       validators: [
         new MaxFileSizeValidator({ maxSize }),

@@ -6,14 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import { AuthUser, Role } from 'src/common';
+import { AuthUser, ParamIdDto, Role } from 'src/common';
 import type { UserDocument } from 'src/DB/Models/users.model';
 import { FileUpload, UploadedFileValidated } from 'src/common/Decorators';
+import { GetAllDto } from 'src/common/Dto/get-all.dto';
 
 @Controller('brands')
 export class BrandsController {
@@ -31,12 +33,12 @@ export class BrandsController {
   }
 
   @Get()
-  findAllBrands() {
+  findAllBrands(@Query() query: GetAllDto) {
     return this.brandsService.findAllBrands();
   }
 
   @Get(':id')
-  findOneBrand(@Param('id') id: string) {
+  findOneBrand(@Param('id') { id }: ParamIdDto) {
     return this.brandsService.findOneBrand(id);
   }
 
@@ -53,7 +55,7 @@ export class BrandsController {
 
   @AuthApply({ roles: [Role.ADMIN] })
   @Delete(':id')
-  removeBrand(@Param('id') id: string) {
+  removeBrand(@Param('id') { id }: ParamIdDto) {
     return this.brandsService.removeBrand(id);
   }
 }

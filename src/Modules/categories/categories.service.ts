@@ -78,21 +78,25 @@ export class CategoriesService {
       }
     }
     if (categoryLogo) {
-      if (category.logoPublicId) {
-        await this.cloudinaryService.deleteFile(category.logoPublicId);
-      }
-      const categoryLogoUrl = await this.cloudinaryService.uploadFile(
-        categoryLogo,
-        {
-          folder: 'categories',
-          quality: 50,
-          toWebp: true,
-        },
-      );
+      const deletePromise = category.logoPublicId
+        ? this.cloudinaryService.deleteFile(category.logoPublicId)
+        : Promise.resolve();
+
+      const uploadPromise = this.cloudinaryService.uploadFile(categoryLogo, {
+        folder: 'categories',
+        quality: 50,
+        toWebp: true,
+      });
+
+      const [_, categoryLogoUrl] = await Promise.all([
+        deletePromise,
+        uploadPromise,
+      ]);
+
       category.logo = categoryLogoUrl.secure_url;
       category.logoPublicId = categoryLogoUrl.public_id;
     }
-    const updatedCategory = await this.categoryRepository.update(id, {
+    const updatedCategory = await this.categoryRepository.findByIdAndUpdate(id, {
       ...updateCategoryDto,
       logo: category.logo,
       logoPublicId: category.logoPublicId,
@@ -109,7 +113,7 @@ export class CategoriesService {
     if (category.logoPublicId) {
       await this.cloudinaryService.deleteFile(category.logoPublicId);
     }
-    await this.categoryRepository.delete(id);
+    await this.categoryRepository.findByIdAndDelete(id);
     return `removed category ${category.name} successfully`;
   }
 

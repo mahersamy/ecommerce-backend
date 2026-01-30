@@ -6,14 +6,18 @@ import {
 } from '@nestjs/common';
 import { LoginBodyDto, RegisterBodyDto } from './auth.dto';
 import { UserRepository } from 'src/DB/Repository/user.repository';
-import { TokenService } from 'src/common';
+import { OtpType, TokenService } from 'src/common';
 import { HashService } from 'src/common';
 import { EncryptionService } from 'src/common';
+import { OtpRepository } from 'src/DB/Repository/otp.repository';
+import { emailEvent } from 'src/common/utils/email/email.event';
+import { generateOtp } from 'src/common/utils';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly _userRepo: UserRepository,
+    private readonly _otpRepo: OtpRepository,
     private readonly _hashService: HashService,
     private readonly _tokenService: TokenService,
     private readonly _encryptionService: EncryptionService,
@@ -33,6 +37,17 @@ export class AuthService {
       password: hashedPassword,
       phoneNumber: encryptedPhoneNumber,
     });
+
+    const { otp, hashOtp, otpExpire } = await generateOtp();
+    await this._otpRepo.create({
+      code: hashOtp,
+      expiresAt: otpExpire,
+      createdBy: newUser._id,
+      type: OtpType.ConfirmEmail,
+    });
+
+    emailEvent.emit('sendOtp', newUser.email, otp);
+
     return {
       data: newUser,
     };

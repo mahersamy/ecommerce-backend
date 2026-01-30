@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory, Virtual } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Gender } from 'src/common/Enums/gender.enum';
 import { Role } from 'src/common/Enums/role.enum';
+import { OtpDocument } from './otp.model';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -37,6 +38,12 @@ export class User {
   @Prop({ type: String, required: true, enum: Gender })
   gender: Gender;
 
+  @Prop({ type: Boolean })
+  isActive: boolean;
+
+  @Virtual()
+  otp: OtpDocument[];
+
   @Virtual({
     get: function () {
       return `${this.firstName} ${this.lastName}`;
@@ -46,3 +53,9 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.virtual('otp', {
+  ref: 'Otp',
+  localField: '_id',
+  foreignField: 'createdBy',
+});

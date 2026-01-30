@@ -1,1 +1,2 @@
-export * from './unifined-response.interceptors';
+export * from './unifined-response.interceptor';
+export * from './timeout.interceptor';

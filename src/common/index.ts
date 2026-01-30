@@ -5,3 +5,4 @@ export * from './Middleware';
 export * from './Pipes';
 export * from './services';
 export * from './Interceptors';
+export * from './Dto';

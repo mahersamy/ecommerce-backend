@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { BrandRepository } from 'src/DB/Repository/brand.repository';
@@ -9,6 +13,7 @@ import {
   CloudinaryService,
 } from 'src/common/services/cloudinary/cloudinary.service';
 import { Types } from 'mongoose';
+import { CategoryDocument } from 'src/DB/Models/category.model';
 
 @Injectable()
 export class BrandsService {
@@ -68,7 +73,7 @@ export class BrandsService {
   async findOneBrand(id: string) {
     const brand = await this.brandRepository.findById(id);
     if (!brand) {
-      throw new BadRequestException('Brand not found');
+      throw new NotFoundException('Brand not found');
     }
     return brand;
   }
@@ -96,34 +101,46 @@ export class BrandsService {
     }
 
     if (brandLogo) {
-      if (brand.logoPublicId) {
-        await this.cloudinaryService.deleteFile(brand.logoPublicId);
-      }
-      const brandLogoUrl = await this.cloudinaryService.uploadFile(brandLogo, {
+      const deletePromise = brand.logoPublicId
+        ? this.cloudinaryService.deleteFile(brand.logoPublicId)
+        : Promise.resolve();
+      const uploadPromise = this.cloudinaryService.uploadFile(brandLogo, {
         folder: 'brands',
         quality: 50,
         toWebp: true,
       });
+
+      const [_, brandLogoUrl] = await Promise.all([
+        deletePromise,
+        uploadPromise,
+      ]);
+
       brand.logo = brandLogoUrl.secure_url;
       brand.logoPublicId = brandLogoUrl.public_id;
     }
 
     // Validate all category IDs if provided
+
+    const categoryIds: Types.ObjectId[] = [...brand.categoryIds];
     if (updateBrandDto.categoryIds && updateBrandDto.categoryIds.length > 0) {
       for (const categoryId of updateBrandDto.categoryIds) {
         const category = await this.categoryRepository.findById(
-          categoryId.toString(),
+          categoryId,
         );
-        if (!category) {
+        if (category) {
+          categoryIds.push(category._id);
+        }
+        if(!category){
           throw new BadRequestException(`Invalid category ID: ${categoryId}`);
         }
       }
     }
 
-    const updatedBrand = await this.brandRepository.update(id, {
+    const updatedBrand = await this.brandRepository.findByIdAndUpdate(id, {
       ...updateBrandDto,
       logo: brand.logo,
       logoPublicId: brand.logoPublicId,
+      categoryIds: categoryIds,
     });
 
     return updatedBrand;
@@ -137,7 +154,7 @@ export class BrandsService {
     if (brand.logoPublicId) {
       await this.cloudinaryService.deleteFile(brand.logoPublicId);
     }
-    await this.brandRepository.delete(id);
+    await this.brandRepository.findByIdAndDelete(id);
     return `removed brand ${brand.name} successfully`;
   }
 }

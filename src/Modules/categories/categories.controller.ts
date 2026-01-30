@@ -6,14 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import { AuthUser, Role } from 'src/common';
+import { AuthUser, ParamIdDto, Role } from 'src/common';
 import type { UserDocument } from 'src/DB/Models/users.model';
 import { FileUpload, UploadedFileValidated } from 'src/common/Decorators';
+import { GetAllDto } from 'src/common/Dto/get-all.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -31,17 +33,17 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query() query: GetAllDto) {
     return this.categoriesService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') { id }: ParamIdDto) {
     return this.categoriesService.findOne(id);
   }
 
   @Get(':id/brands')
-  findBrands(@Param('id') id: string) {
+  findBrands(@Param('id') { id }: ParamIdDto) {
     return this.categoriesService.findBrands(id);
   }
 
@@ -49,7 +51,7 @@ export class CategoriesController {
   @FileUpload()
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id') { id }: ParamIdDto,
     @Body() updateCategoryDto: UpdateCategoryDto,
     @UploadedFileValidated() categoryLogo: Express.Multer.File,
   ) {
@@ -57,7 +59,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') { id }: ParamIdDto) {
     return this.categoriesService.remove(id);
   }
 }
