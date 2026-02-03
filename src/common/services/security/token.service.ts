@@ -5,9 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService, JwtSignOptions, JwtVerifyOptions } from '@nestjs/jwt';
-import { SignatureLevelEnum } from 'src/common/Enums/signature.enum';
-import { tokenTypeEnum } from 'src/common/Enums/tokeType.enum';
-import { UserRepository } from 'src/DB/Repository/user.repository';
+import { SignatureLevelEnum } from '../../Enums/signature.enum';
+import { tokenTypeEnum } from '../../Enums/tokeType.enum';
+import { UserRepository } from '../../../DB/Repository/user.repository';
 
 export interface JwtPayload {
   _id: string;
