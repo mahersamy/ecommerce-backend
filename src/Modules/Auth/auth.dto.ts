@@ -12,7 +12,7 @@ import {
   Min,
   IsStrongPassword,
 } from 'class-validator';
-import { Gender } from 'src/common/Enums/gender.enum';
+import { Gender } from '../../common/Enums/gender.enum';
 
 @ValidatorConstraint({ name: 'isMatch', async: false })
 export class IsMatchConstraint implements ValidatorConstraintInterface {

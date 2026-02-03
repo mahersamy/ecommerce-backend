@@ -11,11 +11,11 @@ import {
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
-import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import { AuthUser, ParamIdDto, Role } from 'src/common';
-import type { UserDocument } from 'src/DB/Models/users.model';
-import { FileUpload, UploadedFileValidated } from 'src/common/Decorators';
-import { GetAllDto } from 'src/common/Dto/get-all.dto';
+import { AuthApply } from '../../common/Decorators/authApply.decorator';
+import { AuthUser, ParamIdDto, Role } from '../../common';
+import type { UserDocument } from '../../DB/Models/users.model';
+import { FileUpload, UploadedFileValidated } from '../../common/Decorators';
+import { GetAllDto } from '../../common/Dto/get-all.dto';
 
 @Controller('brands')
 export class BrandsController {

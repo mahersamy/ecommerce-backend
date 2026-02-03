@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory, Virtual } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { Gender } from 'src/common/Enums/gender.enum';
-import { Role } from 'src/common/Enums/role.enum';
+import { Gender } from '../../common/Enums/gender.enum';
+import { Role } from '../../common/Enums/role.enum';
 import { OtpDocument } from './otp.model';
 
 export type UserDocument = HydratedDocument<User>;

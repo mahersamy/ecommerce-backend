@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { OrderRepository } from 'src/DB/Repository/order.repository';
-import { CartRepository } from 'src/DB/Repository/cart.repository';
-import { UserDocument } from 'src/DB/Models/users.model';
-import { OrderStatus } from 'src/common';
+import { OrderRepository } from '../../DB/Repository/order.repository';
+import { CartRepository } from '../../DB/Repository/cart.repository';
+import { UserDocument } from '../../DB/Models/users.model';
+import { OrderStatus } from '../../common';
 
 @Injectable()
 export class OrdersService {

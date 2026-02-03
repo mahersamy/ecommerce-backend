@@ -5,15 +5,15 @@ import {
 } from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
-import { BrandRepository } from 'src/DB/Repository/brand.repository';
-import { CategoryRepository } from 'src/DB/Repository/category.repository';
-import type { UserDocument } from 'src/DB/Models/users.model';
+import { BrandRepository } from '../../DB/Repository/brand.repository';
+import { CategoryRepository } from '../../DB/Repository/category.repository';
+import type { UserDocument } from '../../DB/Models/users.model';
 import {
   CloudinaryResponse,
   CloudinaryService,
-} from 'src/common/services/cloudinary/cloudinary.service';
+} from '../../common/services/cloudinary/cloudinary.service';
 import { Types } from 'mongoose';
-import { CategoryDocument } from 'src/DB/Models/category.model';
+import { CategoryDocument } from '../../DB/Models/category.model';
 
 @Injectable()
 export class BrandsService {
@@ -124,13 +124,11 @@ export class BrandsService {
     const categoryIds: Types.ObjectId[] = [...brand.categoryIds];
     if (updateBrandDto.categoryIds && updateBrandDto.categoryIds.length > 0) {
       for (const categoryId of updateBrandDto.categoryIds) {
-        const category = await this.categoryRepository.findById(
-          categoryId,
-        );
+        const category = await this.categoryRepository.findById(categoryId);
         if (category) {
           categoryIds.push(category._id);
         }
-        if(!category){
+        if (!category) {
           throw new BadRequestException(`Invalid category ID: ${categoryId}`);
         }
       }

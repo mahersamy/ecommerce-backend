@@ -12,17 +12,17 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import type { UserDocument } from 'src/DB/Models/users.model';
+import { AuthApply } from '../../common/Decorators/authApply.decorator';
+import type { UserDocument } from '../../DB/Models/users.model';
 import {
   AuthUser,
   FilesUpload,
   Role,
   UploadedFilesValidated,
   ParamIdDto,
-} from 'src/common';
+} from '../../common';
 import { DeleteProductImageDto } from './dto/delete-product-image.dto';
-import { GetAllDto } from 'src/common/Dto/get-all.dto';
+import { GetAllDto } from '../../common/Dto/get-all.dto';
 
 @Controller('products')
 export class ProductController {
@@ -39,8 +39,6 @@ export class ProductController {
 
   @Get()
   async findAll(@Query() query: GetAllDto) {
-
-    
     return this.productService.findAll();
   }
 

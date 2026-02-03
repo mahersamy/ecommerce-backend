@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductRepository } from 'src/DB/Repository/product.repository';
-import { BrandRepository } from 'src/DB/Repository/brand.repository';
-import { CategoryRepository } from 'src/DB/Repository/category.repository';
-import { CloudinaryService } from 'src/common/services/cloudinary/cloudinary.service';
-import { UserDocument } from 'src/DB/Models/users.model';
+import { ProductRepository } from '../../DB/Repository/product.repository';
+import { BrandRepository } from '../../DB/Repository/brand.repository';
+import { CategoryRepository } from '../../DB/Repository/category.repository';
+import { CloudinaryService } from '../../common/services/cloudinary/cloudinary.service';
+import { UserDocument } from '../../DB/Models/users.model';
 import { Types } from 'mongoose';
 import { DeleteProductImageDto } from './dto/delete-product-image.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';

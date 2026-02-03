@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthUser, Role, tokenTypeEnum } from 'src/common';
+import { AuthUser, Role, tokenTypeEnum } from '../../common';
 
-import { User } from 'src/DB/Models/users.model';
-import { AuthApply } from 'src/common/Decorators/authApply.decorator';
+import { User } from '../../DB/Models/users.model';
+import { AuthApply } from '../../common/Decorators/authApply.decorator';
 import { UserProfileResponseDto } from './dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
 
@@ -14,6 +14,8 @@ export class UserController {
 
   @Get('profile')
   profile(@AuthUser() user: User): UserProfileResponseDto {
-    return plainToInstance(UserProfileResponseDto, user,{excludeExtraneousValues: true,});
+    return plainToInstance(UserProfileResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 }
