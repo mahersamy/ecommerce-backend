@@ -16,6 +16,7 @@ import {
   ProductModule,
   CartModule,
   WishlistModule,
+  CouponModule,
 } from './Modules/feature.modules';
 import { GlobalModule } from './Modules/global.module';
 import { CloudinaryProvider } from './common/services/cloudinary/cloudinary.provider';
@@ -33,6 +34,7 @@ import { Keyv } from 'keyv';
     ProductModule,
     CartModule,
     WishlistModule,
+    CouponModule,
 
     // Database
     MongooseModule.forRoot(process.env.DATABASE_URI as string),

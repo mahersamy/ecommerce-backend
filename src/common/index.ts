@@ -6,3 +6,4 @@ export * from './Pipes';
 export * from './services';
 export * from './Interceptors';
 export * from './Dto';
+export * from './validators';
