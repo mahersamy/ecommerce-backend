@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { OrderStatus } from 'src/common/Enums/order-status';
-import { PaymentType } from 'src/common/Enums/payment-type.enum';
+import { OrderStatus } from '../../common/Enums/order-status';
+import { PaymentType } from '../../common/Enums/payment-type.enum';
 import { CartItem, CartItemSchema } from './cart.model';
 
 export type OrderDocument = HydratedDocument<Order>;

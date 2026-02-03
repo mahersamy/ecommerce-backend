@@ -1,11 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CouponService } from './coupon.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import { AuthUser } from 'src/common';
-import type { UserDocument } from 'src/DB/Models/users.model';
-
+import { AuthApply } from '../../common/Decorators/authApply.decorator';
+import { AuthUser } from '../../common';
+import type { UserDocument } from '../../DB/Models/users.model';
 
 @AuthApply({ roles: [] })
 @Controller('coupon')
@@ -13,8 +20,11 @@ export class CouponController {
   constructor(private readonly couponService: CouponService) {}
 
   @Post()
-  create(@Body() createCouponDto: CreateCouponDto,@AuthUser() user: UserDocument,) {
-    return this.couponService.create(createCouponDto,user);
+  create(
+    @Body() createCouponDto: CreateCouponDto,
+    @AuthUser() user: UserDocument,
+  ) {
+    return this.couponService.create(createCouponDto, user);
   }
 
   @Get()

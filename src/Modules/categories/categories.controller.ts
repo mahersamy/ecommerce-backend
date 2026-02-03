@@ -11,11 +11,11 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import { AuthUser, ParamIdDto, Role } from 'src/common';
-import type { UserDocument } from 'src/DB/Models/users.model';
-import { FileUpload, UploadedFileValidated } from 'src/common/Decorators';
-import { GetAllDto } from 'src/common/Dto/get-all.dto';
+import { AuthApply } from '../../common/Decorators/authApply.decorator';
+import { AuthUser, ParamIdDto, Role } from '../../common';
+import type { UserDocument } from '../../DB/Models/users.model';
+import { FileUpload, UploadedFileValidated } from '../../common/Decorators';
+import { GetAllDto } from '../../common/Dto/get-all.dto';
 
 @Controller('categories')
 export class CategoriesController {

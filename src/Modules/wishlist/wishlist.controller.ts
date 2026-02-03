@@ -2,9 +2,9 @@ import { Controller, Get, Post, Delete, Body } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { AddToWishlistDto } from './dto/add-wishlist.dto';
 import { RemoveFromWishlistDto } from './dto/remove-wishlist.dto';
-import { AuthApply } from 'src/common/Decorators/authApply.decorator';
-import { AuthUser } from 'src/common/Decorators/authUser.decorator';
-import type { UserDocument } from 'src/DB/Models/users.model';
+import { AuthApply } from '../../common/Decorators/authApply.decorator';
+import { AuthUser } from '../../common/Decorators/authUser.decorator';
+import type { UserDocument } from '../../DB/Models/users.model';
 
 @AuthApply({ roles: [] }) // Available to all authenticated users
 @Controller('wishlist')

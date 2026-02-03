@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { WishlistRepository } from 'src/DB/Repository/wishlist.repository';
-import { ProductRepository } from 'src/DB/Repository/product.repository';
-import { UserDocument } from 'src/DB/Models/users.model';
+import { WishlistRepository } from '../../DB/Repository/wishlist.repository';
+import { ProductRepository } from '../../DB/Repository/product.repository';
+import { UserDocument } from '../../DB/Models/users.model';
 import { AddToWishlistDto } from './dto/add-wishlist.dto';
 import { RemoveFromWishlistDto } from './dto/remove-wishlist.dto';
 

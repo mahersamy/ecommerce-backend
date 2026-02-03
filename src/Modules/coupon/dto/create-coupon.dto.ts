@@ -1,4 +1,4 @@
-import { DiscountType, IsAfterConstraint } from 'src/common';
+import { DiscountType, IsAfterConstraint } from '../../../common';
 import {
   IsBoolean,
   IsDate,

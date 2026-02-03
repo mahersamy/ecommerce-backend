@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory, Virtual } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { DiscountType } from 'src/common';
+import { DiscountType } from '../../common';
 
 export type CouponDocument = HydratedDocument<Coupon>;
 
@@ -36,7 +36,7 @@ export class Coupon {
   @Prop({ default: true })
   isActive: boolean;
 
-  @Prop({type:Types.ObjectId, ref:'User'})
+  @Prop({ type: Types.ObjectId, ref: 'User' })
   createdBy: Types.ObjectId;
 
   @Virtual()

@@ -6,11 +6,11 @@ import {
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { CartRepository } from '../../DB/Repository/cart.repository';
-import type { UserDocument } from 'src/DB/Models/users.model';
-import { ProductRepository } from 'src/DB/Repository/product.repository';
+import type { UserDocument } from '../../DB/Models/users.model';
+import { ProductRepository } from '../../DB/Repository/product.repository';
 import { Types } from 'mongoose';
 import { RemoveCartDto } from './dto/remove-cart.dto';
-import { ParamIdDto } from 'src/common';
+import { ParamIdDto } from '../../common';
 
 @Injectable()
 export class CartService {
@@ -128,7 +128,10 @@ export class CartService {
     }
 
     if (updateCartDto.quantity <= 0) {
-      return this.remove({ productId: updateCartDto.productId as unknown as Types.ObjectId }, user);
+      return this.remove(
+        { productId: updateCartDto.productId as unknown as Types.ObjectId },
+        user,
+      );
     } else {
       cart.items[itemIndex].quantity = updateCartDto.quantity;
     }

@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import type { UserDocument } from 'src/DB/Models/users.model';
-import { CategoryRepository } from 'src/DB/Repository/category.repository';
+import type { UserDocument } from '../../DB/Models/users.model';
+import { CategoryRepository } from '../../DB/Repository/category.repository';
 import {
   CloudinaryResponse,
   CloudinaryService,
-} from 'src/common/services/cloudinary/cloudinary.service';
-import { BrandRepository } from 'src/DB/Repository/brand.repository';
+} from '../../common/services/cloudinary/cloudinary.service';
+import { BrandRepository } from '../../DB/Repository/brand.repository';
 
 @Injectable()
 export class CategoriesService {
@@ -96,11 +96,14 @@ export class CategoriesService {
       category.logo = categoryLogoUrl.secure_url;
       category.logoPublicId = categoryLogoUrl.public_id;
     }
-    const updatedCategory = await this.categoryRepository.findByIdAndUpdate(id, {
-      ...updateCategoryDto,
-      logo: category.logo,
-      logoPublicId: category.logoPublicId,
-    });
+    const updatedCategory = await this.categoryRepository.findByIdAndUpdate(
+      id,
+      {
+        ...updateCategoryDto,
+        logo: category.logo,
+        logoPublicId: category.logoPublicId,
+      },
+    );
     return updatedCategory;
   }
 
