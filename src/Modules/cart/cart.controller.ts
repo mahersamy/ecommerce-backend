@@ -15,7 +15,6 @@ import { Role } from '../../common/Enums/role.enum';
 import { AuthUser } from '../../common/Decorators/authUser.decorator';
 import type { UserDocument } from '../../DB/Models/users.model';
 import { RemoveCartDto } from './dto/remove-cart.dto';
-import { ParamIdDto } from '../../common';
 
 @AuthApply({ roles: [] })
 @Controller('cart')

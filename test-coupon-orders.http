@@ -1,0 +1,594 @@
+### E-Commerce API - Coupon & Order Testing
+### Install REST Client extension in VS Code to use this file
+### Click "Send Request" above each request to execute
+
+# Variables - Update these with your actual values
+@baseUrl = http://localhost:3000
+@adminEmail = admin@example.com
+@adminPassword = admin123
+@userEmail = user@example.com
+@userPassword = user123
+
+### ============================================
+### AUTHENTICATION
+### ============================================
+
+### 1. Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Extract admin token
+@adminToken = {{loginAdmin.response.body.$.data.token}}
+
+### 2. Login as User
+# @name loginUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+### Extract user token
+@userToken = {{loginUser.response.body.$.data.token}}
+
+
+### ============================================
+### COUPON ENDPOINTS (ADMIN)
+### ============================================
+
+### 3. Create Percentage Discount Coupon
+# @name createCoupon1
+POST {{baseUrl}}/coupon
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "NEWYEAR2026",
+  "discountType": "PERCENTAGE",
+  "discountValue": 25,
+  "startDate": "2026-02-01T00:00:00.000Z",
+  "endDate": "2026-12-31T23:59:59.000Z",
+  "usageLimit": 1000,
+  "isActive": true
+}
+
+### Extract coupon ID
+@couponId1 = {{createCoupon1.response.body.$.data._id}}
+
+### 4. Create Fixed Discount Coupon
+# @name createCoupon2
+POST {{baseUrl}}/coupon
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "SAVE50",
+  "discountType": "FIXED",
+  "discountValue": 50,
+  "startDate": "2026-02-01T00:00:00.000Z",
+  "endDate": "2026-06-30T23:59:59.000Z",
+  "usageLimit": 500,
+  "isActive": true
+}
+
+### Extract coupon ID
+@couponId2 = {{createCoupon2.response.body.$.data._id}}
+
+### 5. Create Welcome Bonus Coupon
+# @name createCoupon3
+POST {{baseUrl}}/coupon
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "WELCOME10",
+  "discountType": "FIXED",
+  "discountValue": 10,
+  "startDate": "2026-01-01T00:00:00.000Z",
+  "endDate": "2026-12-31T23:59:59.000Z",
+  "usageLimit": 0,
+  "isActive": true
+}
+
+### Extract coupon ID
+@couponId3 = {{createCoupon3.response.body.$.data._id}}
+
+### 6. Get All Coupons (Admin)
+GET {{baseUrl}}/coupon
+Authorization: Bearer {{adminToken}}
+
+### 7. Get Single Coupon by ID
+GET {{baseUrl}}/coupon/{{couponId1}}
+Authorization: Bearer {{adminToken}}
+
+### 8. Update Coupon
+PATCH {{baseUrl}}/coupon/{{couponId1}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "discountValue": 30,
+  "usageLimit": 2000
+}
+
+### 9. Deactivate Coupon
+PATCH {{baseUrl}}/coupon/{{couponId2}}/deactivate
+Authorization: Bearer {{adminToken}}
+
+### 10. Activate Coupon
+PATCH {{baseUrl}}/coupon/{{couponId2}}/activate
+Authorization: Bearer {{adminToken}}
+
+### 11. Delete Coupon (be careful!)
+# DELETE {{baseUrl}}/coupon/{{couponId3}}
+# Authorization: Bearer {{adminToken}}
+
+
+### ============================================
+### COUPON ENDPOINTS (PUBLIC/USER)
+### ============================================
+
+### 12. Get Active Coupons (User)
+GET {{baseUrl}}/coupon/active
+Authorization: Bearer {{userToken}}
+
+### 13. Validate Coupon by Code
+POST {{baseUrl}}/coupon/validate/NEWYEAR2026
+Authorization: Bearer {{userToken}}
+
+### 14. Validate Another Coupon
+POST {{baseUrl}}/coupon/validate/SAVE50
+Authorization: Bearer {{userToken}}
+
+
+### ============================================
+### CART SETUP (Required before creating orders)
+### ============================================
+
+### 15. Add Product to Cart
+# @name addToCart1
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 2
+}
+
+### 16. View Cart
+GET {{baseUrl}}/cart
+Authorization: Bearer {{userToken}}
+
+
+### ============================================
+### ORDER ENDPOINTS
+### ============================================
+
+### 17. Create Order WITHOUT Coupon
+# @name createOrder1
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "123 Main Street, Apt 4B, New York, NY 10001",
+  "phone": "1234567890",
+  "note": "Please ring doorbell twice",
+  "paymentMethod": "cash"
+}
+
+### Extract order ID
+@orderId1 = {{createOrder1.response.body.$.data._id}}
+
+### 18. Add More Items to Cart (for next order)
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+### 19. Create Order WITH Coupon
+# @name createOrder2
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "456 Oak Avenue, Suite 200, Los Angeles, CA 90001",
+  "phone": "9876543210",
+  "note": "Leave at front door if not home",
+  "paymentMethod": "credit_card",
+  "coupon": "{{couponId1}}"
+}
+
+### Extract order ID
+@orderId2 = {{createOrder2.response.body.$.data._id}}
+
+### 20. Get All My Orders
+GET {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+
+### 21. Get Single Order Details
+GET {{baseUrl}}/orders/{{orderId1}}
+Authorization: Bearer {{userToken}}
+
+### 22. Get Order with Coupon Details
+GET {{baseUrl}}/orders/{{orderId2}}
+Authorization: Bearer {{userToken}}
+
+### 23. Update Order Shipping Details
+PATCH {{baseUrl}}/orders/{{orderId1}}
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "789 Pine Street, Updated Apt 5C, Chicago, IL 60601",
+  "phone": "5551234567",
+  "note": "Updated: Please call before delivery"
+}
+
+### 24. Update Order Status to Shipped
+PATCH {{baseUrl}}/orders/{{orderId1}}/status
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+### 25. Update Order Status to Delivered
+PATCH {{baseUrl}}/orders/{{orderId1}}/status
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "status": "delivered"
+}
+
+### 26. Add Items to Cart for Cancellation Test
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 3
+}
+
+### 27. Create Order for Cancellation Test
+# @name createOrderToCancel
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Test Address for Cancellation",
+  "phone": "1112223333",
+  "note": "This order will be cancelled",
+  "paymentMethod": "cash",
+  "coupon": "{{couponId2}}"
+}
+
+### Extract order ID for cancellation
+@orderToCancelId = {{createOrderToCancel.response.body.$.data._id}}
+
+### 28. Cancel Order (Restores Stock & Coupon)
+PATCH {{baseUrl}}/orders/{{orderToCancelId}}/cancel
+Authorization: Bearer {{userToken}}
+
+### 29. Delete Cancelled Order
+DELETE {{baseUrl}}/orders/{{orderToCancelId}}
+Authorization: Bearer {{userToken}}
+
+
+### ============================================
+### ERROR SCENARIOS (Testing Edge Cases)
+### ============================================
+
+### 30. Try to Create Order with Empty Cart (Should Fail)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Test Address",
+  "phone": "1234567890",
+  "paymentMethod": "cash"
+}
+
+### 31. Try to Use Invalid Coupon (Should Fail)
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Test Address",
+  "phone": "1234567890",
+  "paymentMethod": "cash",
+  "coupon": "invalid_coupon_id_123"
+}
+
+### 32. Try to Validate Non-Existent Coupon (Should Fail)
+POST {{baseUrl}}/coupon/validate/NONEXISTENT
+Authorization: Bearer {{userToken}}
+
+### 33. Try to Cancel Already Delivered Order (Should Fail)
+PATCH {{baseUrl}}/orders/{{orderId1}}/cancel
+Authorization: Bearer {{userToken}}
+
+### 34. Try to Delete Non-Cancelled Order (Should Fail)
+DELETE {{baseUrl}}/orders/{{orderId2}}
+Authorization: Bearer {{userToken}}
+
+### 35. Try to Update Cancelled Order Status (Should Fail)
+PATCH {{baseUrl}}/orders/{{orderToCancelId}}/status
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+### 36. Try to Create Duplicate Coupon Code (Should Fail)
+POST {{baseUrl}}/coupon
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "NEWYEAR2026",
+  "discountType": "PERCENTAGE",
+  "discountValue": 20,
+  "startDate": "2026-02-01T00:00:00.000Z",
+  "endDate": "2026-12-31T23:59:59.000Z",
+  "usageLimit": 100,
+  "isActive": true
+}
+
+### 37. Try to Access Coupon Admin Endpoints as User (Should Fail)
+GET {{baseUrl}}/coupon
+Authorization: Bearer {{userToken}}
+
+
+### ============================================
+### PAYMENT METHOD VARIATIONS
+### ============================================
+
+### 38. Order with Different Payment Methods
+# Cash
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Payment Test Address",
+  "phone": "1234567890",
+  "paymentMethod": "cash"
+}
+
+### 39. Order with Credit Card
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Payment Test Address",
+  "phone": "1234567890",
+  "paymentMethod": "credit_card"
+}
+
+### 40. Order with PayPal
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Payment Test Address",
+  "phone": "1234567890",
+  "paymentMethod": "paypal"
+}
+
+
+### ============================================
+### ADVANCED SCENARIOS
+### ============================================
+
+### 41. Complete Order Lifecycle
+# Step 1: Add to Cart
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 2
+}
+
+### Step 2: Validate Coupon
+POST {{baseUrl}}/coupon/validate/NEWYEAR2026
+Authorization: Bearer {{userToken}}
+
+### Step 3: Create Order with Coupon
+# @name lifecycleOrder
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Full Lifecycle Test, 123 Test St",
+  "phone": "5559998888",
+  "note": "Testing complete order lifecycle",
+  "paymentMethod": "credit_card",
+  "coupon": "{{couponId1}}"
+}
+
+### Extract lifecycle order ID
+@lifecycleOrderId = {{lifecycleOrder.response.body.$.data._id}}
+
+### Step 4: View Order
+GET {{baseUrl}}/orders/{{lifecycleOrderId}}
+Authorization: Bearer {{userToken}}
+
+### Step 5: Update to Shipped
+PATCH {{baseUrl}}/orders/{{lifecycleOrderId}}/status
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+### Step 6: Update to Delivered
+PATCH {{baseUrl}}/orders/{{lifecycleOrderId}}/status
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "status": "delivered"
+}
+
+### 42. Test Coupon Usage Limit
+# This would require creating a coupon with usageLimit: 1
+# and trying to use it twice from different users
+# @name limitedCoupon
+POST {{baseUrl}}/coupon
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "LIMITEDUSE",
+  "discountType": "PERCENTAGE",
+  "discountValue": 15,
+  "startDate": "2026-02-01T00:00:00.000Z",
+  "endDate": "2026-12-31T23:59:59.000Z",
+  "usageLimit": 1,
+  "isActive": true
+}
+
+### Extract limited coupon ID
+@limitedCouponId = {{limitedCoupon.response.body.$.data._id}}
+
+### Use the limited coupon (first user)
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Limited Coupon Test",
+  "phone": "1234567890",
+  "paymentMethod": "cash",
+  "coupon": "{{limitedCouponId}}"
+}
+
+### Try to use same coupon again (should fail - already used by this user)
+POST {{baseUrl}}/cart/add
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "REPLACE_WITH_ACTUAL_PRODUCT_ID",
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "address": "Limited Coupon Test 2",
+  "phone": "1234567890",
+  "paymentMethod": "cash",
+  "coupon": "{{limitedCouponId}}"
+}
+
+
+### ============================================
+### CLEANUP (Optional - Uncomment to use)
+### ============================================
+
+### Delete Test Coupons
+# DELETE {{baseUrl}}/coupon/{{couponId1}}
+# Authorization: Bearer {{adminToken}}
+
+###
+# DELETE {{baseUrl}}/coupon/{{couponId2}}
+# Authorization: Bearer {{adminToken}}
+
+###
+# DELETE {{baseUrl}}/coupon/{{limitedCouponId}}
+# Authorization: Bearer {{adminToken}}
+
+
+### ============================================
+### NOTES
+### ============================================
+# 1. Update @baseUrl if your server runs on a different port
+# 2. Update admin and user credentials at the top
+# 3. Replace "REPLACE_WITH_ACTUAL_PRODUCT_ID" with real product IDs from your database
+# 4. Run authentication requests first to get tokens
+# 5. Some requests depend on previous requests completing successfully
+# 6. Order of execution matters for some test scenarios
+# 7. Variables are automatically extracted from responses
+# 8. Check the "Send Request" button above each request to execute

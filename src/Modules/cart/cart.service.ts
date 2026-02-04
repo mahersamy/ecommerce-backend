@@ -10,7 +10,6 @@ import type { UserDocument } from '../../DB/Models/users.model';
 import { ProductRepository } from '../../DB/Repository/product.repository';
 import { Types } from 'mongoose';
 import { RemoveCartDto } from './dto/remove-cart.dto';
-import { ParamIdDto } from '../../common';
 
 @Injectable()
 export class CartService {
@@ -68,7 +67,7 @@ export class CartService {
         cart.items.push({
           product: createCartDto.productId,
           quantity: createCartDto.quantity,
-          price: product.price,
+          price: product.finalPrice,
         });
         await cart.save();
         return cart.populate('items.product');
@@ -80,7 +79,7 @@ export class CartService {
           {
             product: createCartDto.productId,
             quantity: createCartDto.quantity,
-            price: product.price,
+            price: product.finalPrice,
           },
         ],
       });
@@ -89,13 +88,37 @@ export class CartService {
   }
 
   async getLoggedCart(user: UserDocument) {
-    return await this.cartRepository.findOne(
+    const cart = await this.cartRepository.findOne(
       {
         userId: user._id,
       },
       {},
       { populate: 'items.product' },
     );
+
+    if (!cart || cart.items.length === 0) {
+      return cart;
+    }
+
+    // Sync prices with current product prices
+    let priceUpdated = false;
+    for (const item of cart.items) {
+      const product = await this.productRepository.findOne({
+        _id: item.product,
+      });
+
+      if (product && product.finalPrice !== item.price) {
+        item.price = product.finalPrice;
+        priceUpdated = true;
+      }
+    }
+
+    // Save cart if any prices were updated
+    if (priceUpdated) {
+      await cart.save();
+    }
+
+    return cart;
   }
 
   async editCartItem(updateCartDto: UpdateCartDto, user: UserDocument) {
@@ -136,7 +159,7 @@ export class CartService {
       cart.items[itemIndex].quantity = updateCartDto.quantity;
     }
 
-    cart.items[itemIndex].price = product.price;
+    cart.items[itemIndex].price = product.finalPrice;
 
     await cart.save();
     return cart.populate('items.product');
