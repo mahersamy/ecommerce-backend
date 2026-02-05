@@ -13,6 +13,7 @@ import { AuthApply } from '../../common/Decorators/authApply.decorator';
 import { CartService } from '../cart/cart.service';
 import { ProductRepository } from '../../DB/Repository/product.repository';
 import { Types } from 'mongoose';
+import { NotificationService } from '../notification/notification.service';
 
 @AuthApply({ roles: [] })
 @Injectable()
@@ -22,6 +23,7 @@ export class OrdersService {
     private readonly CartService: CartService,
     private readonly CouponRepository: CouponRepository,
     private readonly ProductRepository: ProductRepository,
+    private readonly NotificationService: NotificationService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, user: UserDocument) {
@@ -99,6 +101,14 @@ export class OrdersService {
 
     await this.CartService.clearCart(user);
     await order.populate('orderItems.product');
+    this.NotificationService.sendOrderNotification({
+      userId: user._id,
+      orderId: order._id,
+      customerName: user.fullName,
+      totalAmount: order.totalAmount,
+      items: order.orderItems,
+      recipient: user.email,
+    });
     return order;
   }
 
@@ -132,7 +142,7 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-
+    
     return order;
   }
 

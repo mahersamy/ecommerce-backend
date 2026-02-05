@@ -11,6 +11,9 @@ import { Coupon, CouponSchema } from '../../DB/Models/coupon.model';
 import { CartService } from '../cart/cart.service';
 import { ProductRepository } from '../../DB/Repository/product.repository';
 import { Product, ProductSchema } from '../../DB/Models/product.model';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationRepository } from '../../DB/Repository/notification.repository';
+import { Notification, NotificationSchema } from '../../DB/Models/notification.model';
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { Product, ProductSchema } from '../../DB/Models/product.model';
       { name: Cart.name, schema: CartSchema },
       { name: Coupon.name, schema: CouponSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Notification.name, schema: NotificationSchema },
     ]),
   ],
   controllers: [OrdersController],
@@ -29,7 +33,9 @@ import { Product, ProductSchema } from '../../DB/Models/product.model';
     CartRepository,
     CouponRepository,
     CartService,
-    ProductRepository
+    ProductRepository,
+    NotificationService,
+    NotificationRepository,
   ],
 })
 export class OrdersModule {}
