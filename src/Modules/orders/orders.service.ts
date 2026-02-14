@@ -203,9 +203,9 @@ export class OrdersService {
     }
 
     // Only allow cancellation if order is pending
-    if (order.orderStatus !== OrderStatus.PENDING) {
-      throw new BadRequestException('Only pending orders can be cancelled');
-    }
+    // if (order.orderStatus !== OrderStatus.PENDING) {
+    //   throw new BadRequestException('Only pending orders can be cancelled');
+    // }
 
     // Restore product stock
     for (const item of order.orderItems) {
