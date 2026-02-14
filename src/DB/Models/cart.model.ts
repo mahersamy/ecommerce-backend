@@ -3,6 +3,7 @@ import { User } from './users.model';
 import { HydratedDocument, Types } from 'mongoose';
 
 export type CartDocument = HydratedDocument<Cart>;
+export type CartItemDocument = HydratedDocument<CartItem>;
 
 @Schema({ timestamps: true, virtuals: true, toJSON: { virtuals: true } })
 export class CartItem {

@@ -7,13 +7,16 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderRepository } from '../../DB/Repository/order.repository';
 import { UserDocument } from '../../DB/Models/users.model';
-import { DiscountType, OrderStatus } from '../../common';
+import { DiscountType, OrderStatus, PaymentType } from '../../common';
 import { CouponRepository } from '../../DB/Repository/coupon.repository';
 import { AuthApply } from '../../common/Decorators/authApply.decorator';
 import { CartService } from '../cart/cart.service';
 import { ProductRepository } from '../../DB/Repository/product.repository';
 import { Types } from 'mongoose';
 import { NotificationService } from '../notification/notification.service';
+import { PaymentService } from 'src/common';
+import type { ProductDocument } from '../../DB/Models/product.model';
+import Stripe from 'stripe';
 
 @AuthApply({ roles: [] })
 @Injectable()
@@ -24,6 +27,7 @@ export class OrdersService {
     private readonly CouponRepository: CouponRepository,
     private readonly ProductRepository: ProductRepository,
     private readonly NotificationService: NotificationService,
+    private readonly PaymentService: PaymentService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, user: UserDocument) {
@@ -123,30 +127,7 @@ export class OrdersService {
     );
   }
 
-  async findOne(id: string, user: UserDocument) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid order ID');
-    }
-
-    const order = await this.OrderRepository.findOne(
-      {
-        _id: id,
-        user: user._id,
-      },
-      {},
-      {
-        populate: 'orderItems.product coupon',
-      },
-    );
-
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    
-    return order;
-  }
-
-  async update(id: string, updateOrderDto: UpdateOrderDto,) {
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid order ID');
     }
@@ -245,6 +226,13 @@ export class OrdersService {
       );
     }
 
+    if (order.paymentMethod === PaymentType.STRIPE) {
+      await this.PaymentService.refundPayment(
+        order.paymentIntent,
+        'requested_by_customer',
+      );
+    }
+
     const updatedOrder = await this.OrderRepository.findByIdAndUpdate(
       id,
       { orderStatus: OrderStatus.CANCELLED },
@@ -276,5 +264,75 @@ export class OrdersService {
 
     await this.OrderRepository.findByIdAndDelete(id);
     return { message: 'Order deleted successfully' };
+  }
+
+  async checkout(id: string, user: UserDocument) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid order ID');
+    }
+
+    const order = await this.OrderRepository.findOne(
+      {
+        _id: id,
+        user: user._id,
+        orderStatus: OrderStatus.PENDING,
+        paymentMethod: PaymentType.STRIPE,
+      },
+      {},
+      {
+        populate: 'orderItems.product',
+      },
+    );
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    const session = await this.PaymentService.checkOutSession({
+      line_items: order.orderItems.map((item) => {
+        const product = item.product as unknown as ProductDocument;
+        return {
+          price_data: {
+            currency: 'egp',
+            product_data: {
+              name: product.title,
+            },
+            unit_amount: Math.round(product.finalPrice * 100),
+          },
+          quantity: item.quantity,
+        };
+      }),
+      metadata: {
+        orderId: order._id.toString(),
+      },
+      discounts: [],
+      mode: 'payment',
+      customer_email: user.email,
+    });
+
+    return session;
+  }
+
+  async handleStripeWebhook(event: Stripe.Event) {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const orderId = session.metadata?.orderId;
+
+        if (!orderId) {
+          throw new BadRequestException('Missing orderId in session metadata');
+        }
+
+        await this.OrderRepository.findByIdAndUpdate(orderId, {
+          paymentIntent: session.payment_intent as string,
+          orderStatus: OrderStatus.SHIPPED,
+        });
+
+        break;
+      }
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    return { received: true };
   }
 }

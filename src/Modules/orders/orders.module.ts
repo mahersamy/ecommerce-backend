@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
+import { WebhookController } from './webhook.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from '../../DB/Models/orders.model';
 import { OrderRepository } from '../../DB/Repository/order.repository';
@@ -13,7 +14,11 @@ import { ProductRepository } from '../../DB/Repository/product.repository';
 import { Product, ProductSchema } from '../../DB/Models/product.model';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationRepository } from '../../DB/Repository/notification.repository';
-import { Notification, NotificationSchema } from '../../DB/Models/notification.model';
+import {
+  Notification,
+  NotificationSchema,
+} from '../../DB/Models/notification.model';
+import { PaymentService } from 'src/common';
 
 @Module({
   imports: [
@@ -25,7 +30,7 @@ import { Notification, NotificationSchema } from '../../DB/Models/notification.m
       { name: Notification.name, schema: NotificationSchema },
     ]),
   ],
-  controllers: [OrdersController],
+  controllers: [OrdersController, WebhookController],
   providers: [
     OrdersService,
     ProductRepository,
@@ -36,6 +41,7 @@ import { Notification, NotificationSchema } from '../../DB/Models/notification.m
     ProductRepository,
     NotificationService,
     NotificationRepository,
+    PaymentService,
   ],
 })
 export class OrdersModule {}

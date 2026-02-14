@@ -35,6 +35,9 @@ export class Order {
   @Prop({ required: true, type: String, enum: PaymentType })
   paymentMethod: PaymentType;
 
+  @Prop({ type: String })
+  paymentIntent: string;
+
   @Prop({ required: true, type: String, enum: OrderStatus })
   orderStatus: OrderStatus;
 

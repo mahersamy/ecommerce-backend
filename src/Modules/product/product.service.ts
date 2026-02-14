@@ -61,13 +61,13 @@ export class ProductService {
   }
 
   async findAll() {
-    const cachedProducts = await this.cacheManager.get('products');
-    if (cachedProducts) {
-      console.log('cachedProducts : ');
-      return cachedProducts;
-    }
+    // const cachedProducts = await this.cacheManager.get('products');
+    // if (cachedProducts) {
+    //   console.log('cachedProducts : ');
+    //   return cachedProducts;
+    // }
     const products = await this.productRepository.find();
-    await this.cacheManager.set('products', products);
+    // await this.cacheManager.set('products', products);
     return products;
   }
 
